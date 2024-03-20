@@ -1,0 +1,12 @@
+.gradient {
+  &.primary {
+    background: linear-gradient(to top right, #2563eb, #4b8efb);
+    color: white;
+  }
+}
+.bg {
+  background: url('https://images.pexels.com/photos/1722183/pexels-photo-1722183.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+  background-size: cover;
+  width: calc(100% - 1rem);
+  height: calc(100vh - 2rem);
+}

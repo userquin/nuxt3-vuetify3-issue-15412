@@ -1,0 +1,8 @@
+@use 'vuetify/settings' with
+  (
+    $body-font-family: 'Inter var',
+    $field-font-size: 15px,
+    $field-border-radius: 8px,
+    $field-focused-border-width: 1px,
+    $button-border-radius: 8px
+  );

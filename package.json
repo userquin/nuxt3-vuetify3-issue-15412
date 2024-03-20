@@ -1,0 +1,25 @@
+{
+  "name": "nuxt3-vuetify3-issue-15412",
+  "type": "module",
+  "packageManager": "pnpm@8.15.5",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "DEBUG=vite:sourcemap nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "vuetify": "^3.5.11"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.1.1",
+    "nuxt": "^3.11.1",
+    "nuxt-icon": "^0.6.9",
+    "sass": "^1.57.1",
+    "typescript": "5.4.3",
+    "vite": "^5.2.2",
+    "vite-plugin-vuetify": "file:vite-plugin-vuetify-v2.0.3.tgz",
+    "vue-tsc": "^2.0.7"
+  }
+}
