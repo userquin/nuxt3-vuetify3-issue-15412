@@ -6832,7 +6832,7 @@ packages:
     dev: true
 
   file:vite-plugin-vuetify-v2.0.3.tgz(vite@5.2.2)(vue@3.4.21)(vuetify@3.5.11):
-    resolution: {integrity: sha512-HlQ/a0JbLM88ZXgomNv/q2Iteb8VQ8FtpJlvmENR3xC4w+k6bcrdULghJHx+ESPKC4NSVsnUw0Z2ZvAa40Nl4A==, tarball: file:vite-plugin-vuetify-v2.0.3.tgz}
+    resolution: {integrity: sha512-KQVvgCeaupfqIJ+vOt52DobQoNlb9agzp25pIkE5tXDRF/puVBIQkngKe1EQKt+PTzoa9uU5qZ+lArrbMtCo2Q==, tarball: file:vite-plugin-vuetify-v2.0.3.tgz}
     id: file:vite-plugin-vuetify-v2.0.3.tgz
     name: vite-plugin-vuetify
     version: 2.0.3
