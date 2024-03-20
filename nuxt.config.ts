@@ -10,9 +10,7 @@ export default defineNuxtConfig({
       noExternal: ['vuetify']
     }
   },
-  devtools: {
-    enabled: true,
-  },
+  devtools: { enabled: true },
   features: {
     devLogs: false,
   },
