@@ -1,5 +1,6 @@
 @use 'vuetify/settings' with
   (
+    /*$utilities: false,*/
     $body-font-family: 'Inter var',
     $field-font-size: 15px,
     $field-border-radius: 8px,
