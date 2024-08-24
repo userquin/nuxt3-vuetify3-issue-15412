@@ -11,17 +11,16 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "vuetify": "^3.5.11"
+    "vuetify": "^3.7.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^1.1.1",
-    "nuxt": "^3.11.1",
-    "nuxt-icon": "^0.6.9",
-    "sass": "^1.57.1",
-    "typescript": "5.4.3",
-    "vite": "^5.2.2",
-    "vite-plugin-vuetify": "file:vite-plugin-vuetify-v2.0.3.tgz",
-    "vue-tsc": "^2.0.7"
+    "@nuxt/devtools": "^1.3.14",
+    "nuxt": "^3.13.0",
+    "nuxt-icon": "^0.6.10",
+    "sass-embedded": "^1.77.8",
+    "typescript": "^5.5.4",
+    "vite-plugin-vuetify": "^2.0.4",
+    "vue-tsc": "^2.0.29"
   },
   "stackblitz": {
     "installDependencies": false,
