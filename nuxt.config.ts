@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     css: {
       devSourcemap: true,
       preprocessorOptions: {
+        // remove this entry when using vite from https://pkg.pr.new/vite@561b940
         sass: {
           api: 'modern-compiler'
         },
