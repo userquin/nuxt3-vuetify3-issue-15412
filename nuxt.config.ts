@@ -7,45 +7,6 @@ export default defineNuxtConfig({
     transpile: ['vuetify']
   },
   vite: {
-    plugins: [{
-      name: 'check',
-      enforce: 'post',
-      configResolved(config) {
-        console.log(config.css)
-      }
-    }],
-    css: {
-      devSourcemap: true,
-      preprocessorOptions: {
-        // remove this entry when using vite from https://pkg.pr.new/vite@561b940
-        sass: {
-          api: 'modern-compiler'
-        },
-        /* prepare some tests for vuetify styles plugin: virtual
-        scss: {
-          api: 'modern',
-          importers: [
-            {
-              canonicalize(url: string) {
-                console.log('URL: ' + url)
-                return url === 'virtual-dep'
-                    ? new URL('custom-importer:virtual-dep')
-                    : null
-              },
-              load() {
-                console.log('WTF')
-                return {
-                  contents: ``,
-                  syntax: 'scss',
-                }
-              },
-            },
-          ]
-        }
-        */
-      },
-      // preprocessorMaxWorkers: true,
-    },
     ssr: {
       noExternal: ['vuetify']
     }
@@ -55,16 +16,12 @@ export default defineNuxtConfig({
     inlineStyles: false,
     devLogs: false,
   },
+  vuetify: {
+    styles: { configFile: 'assets/variables.scss' },
+  },
   modules: [
+    './modules/vuetify',
     'nuxt-icon',
-    async (_, nuxt) => {
-      nuxt.hook('vite:extendConfig', (viteInlineConfig) => {
-        viteInlineConfig.plugins = viteInlineConfig.plugins || []
-        viteInlineConfig.plugins.push(vuetify({
-          styles: { configFile: 'assets/variables.scss' },
-        }))
-      })
-    },
   ],
   app: {
     head: {
