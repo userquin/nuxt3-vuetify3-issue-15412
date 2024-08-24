@@ -5,6 +5,7 @@ Testing Vite 5.4.2 ([fix sass file:// reference](https://github.com/vitejs/vite/
 Testing [fix sass modern source map](https://github.com/vitejs/vite/pull/17938) it is working:
 - add `"vite": "https://pkg.pr.new/vite@561b940"` to `package.json` dependencies
 - and same entry to `package.json` resolutions
+- initial run will fail: you need to remove `vite.css.sass` from `nuxt.config.ts`
 
 then run `pnpm install && pnpm dedupe && pnpm nuxt prepare`.
 
