@@ -1,12 +1,19 @@
-import vuetify from 'vite-plugin-vuetify';
-
 export default defineNuxtConfig({
   compatibilityDate: '2024-08-23',
+  ssr: false,
   css: ['vuetify/styles', '@/assets/main.scss'],
   build: {
     transpile: ['vuetify']
   },
   vite: {
+    css: {
+      // devSourcemap: true,
+      preprocessorOptions: {
+        sass: {
+          api: 'modern-compiler'
+        },
+      },
+    },
     ssr: {
       noExternal: ['vuetify']
     }
@@ -17,10 +24,14 @@ export default defineNuxtConfig({
     devLogs: false,
   },
   vuetify: {
-    styles: { configFile: 'assets/variables.scss' },
+    // styles: 'none',
+    styles: {
+      configFile: 'assets/variables.scss',
+      // useViteFileImport: true,
+    },
   },
   modules: [
-    './modules/vuetify',
+    //'./modules/vuetify.ts',
     'nuxt-icon',
   ],
   app: {

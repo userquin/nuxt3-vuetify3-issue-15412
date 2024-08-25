@@ -1,12 +1,17 @@
-import {defineNuxtModule} from "@nuxt/kit";
-import type { Plugin } from 'vite'
-import type {Options } from '@vuetify/loader-shared'
-import vuetify from "vite-plugin-vuetify";
+import { defineNuxtModule } from '@nuxt/kit'
+import type { ImportPluginOptions } from '@vuetify/loader-shared'
+import vuetify from 'vite-plugin-vuetify'
 import path from 'upath'
 import { resolveVuetifyBase, normalizePath, isObject } from '@vuetify/loader-shared'
-import {pathToFileURL} from "node:url";
+import { pathToFileURL } from 'node:url'
+import { mkdir, writeFile } from 'node:fs/promises'
 
-export interface VuetifyModuleOptions extends Options {
+export interface VuetifyModuleOptions {
+    autoImport?: ImportPluginOptions
+    styles?: true | 'none' | 'sass' | {
+        configFile: string
+        useViteFileImport?: boolean
+    }
 }
 
 export default defineNuxtModule<VuetifyModuleOptions>({
@@ -20,30 +25,37 @@ export default defineNuxtModule<VuetifyModuleOptions>({
     },
     setup(options, nuxt) {
         let configFile: string | undefined
+        let cacheDir: string | undefined
         const vuetifyBase = resolveVuetifyBase()
-        const tempFiles = new Map<string, string>()
+        const noneFiles = new Set<string>()
         const isNone = options.styles === 'none'
-        const usingSassVariables = isNone ? false : isObject(options.styles)
+        let fileImport = false
 
         nuxt.hook('vite:extendConfig', (viteInlineConfig) => {
             viteInlineConfig.plugins = viteInlineConfig.plugins || []
             viteInlineConfig.plugins.push(vuetify({
                 ...options,
-                styles: undefined,
+                styles: true,
             }))
             viteInlineConfig.plugins.push({
                 name: 'vuetify:nuxt:styles',
                 enforce: 'pre',
-                configResolved (config) {
+                async configResolved (config) {
                     if (isObject(options.styles)) {
+                        const root = config.root || process.cwd()
+                        cacheDir = path.resolve(config.cacheDir ?? path.join(root, 'node_modules/.vite'), 'vuetify-styles')
+                        fileImport = options.styles.useViteFileImport === true
                         if (path.isAbsolute(options.styles.configFile)) {
                             configFile = path.resolve(options.styles.configFile)
                         } else {
-                            configFile = path.resolve(path.join(config.root || process.cwd(), options.styles.configFile))
+                            configFile = path.resolve(path.join(root, options.styles.configFile))
                         }
+                        configFile = fileImport
+                            ? pathToFileURL(configFile).href
+                            : normalizePath(configFile)
                     }
                 },
-                async resolveId (source, importer, { custom }) {
+                async resolveId (source, importer, { custom, ssr }) {
                     if (
                         source === 'vuetify/styles' || (
                             importer &&
@@ -58,18 +70,31 @@ export default defineNuxtModule<VuetifyModuleOptions>({
 
                         const resolution = await this.resolve(source, importer, { skipSelf: true, custom })
                         if (!resolution)
-                            return
+                            return undefined
 
                         const target = resolution.id.replace(/\.css$/, '.sass')
-                        tempFiles.set(target, isNone
-                            ? ''
-                            : `@use "${pathToFileURL(configFile!).href}"\n@use "${pathToFileURL(resolution.id).href}"`
+                        if (isNone) {
+                            noneFiles.add(target)
+                            return target
+                        }
+
+                        const tempFile = path.resolve(
+                            cacheDir,
+                            path.relative(path.join(vuetifyBase, 'lib'), target)
                         )
-                        return target
+                        await mkdir(path.dirname(tempFile), { recursive: true })
+                        await writeFile(
+                            tempFile,
+                            `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
+                            'utf-8',
+                        )
+                        return tempFile
                     }
+
+                    return undefined
                 },
                 load(id) {
-                    return isNone || usingSassVariables ? tempFiles.get(id) : undefined
+                    return isNone && noneFiles.has(id) ? '' : undefined
                 },
             })
         })

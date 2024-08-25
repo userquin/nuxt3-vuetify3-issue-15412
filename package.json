@@ -25,9 +25,6 @@
     "vite-plugin-vuetify": "^2.0.4",
     "vue-tsc": "^2.0.29"
   },
-  "resolutions": {
-    "vite": "https://pkg.pr.new/vite@561b940"
-  },
   "stackblitz": {
     "installDependencies": false,
     "startCommand": "node .stackblitz.js && pnpm install && pnpm nuxt prepare && pnpm dev"
