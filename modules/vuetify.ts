@@ -4,7 +4,6 @@ import vuetify from 'vite-plugin-vuetify'
 import path from 'upath'
 import { resolveVuetifyBase, normalizePath, isObject } from '@vuetify/loader-shared'
 import { pathToFileURL } from 'node:url'
-// import { mkdir, writeFile } from 'node:fs/promises'
 
 export interface VuetifyModuleOptions {
     autoImport?: ImportPluginOptions
@@ -33,26 +32,6 @@ export default defineNuxtModule<VuetifyModuleOptions>({
         let fileImport = false
         const PREFIX = 'vuetify-styles/'
 
-        if (nuxt.options.dev && sassVariables) {
-            /*nuxt.options.ignore ??= []
-            nuxt.options.ignore.push(`${nuxt.options.app.buildAssetsDir}${PREFIX}!**!/!*.sass`)*/
-            // const route = `${nuxt.options.app.buildAssetsDir}${PREFIX}`
-            // nuxt.hook('vite:serverCreated', (viteServer, { isServer }) => {
-            //     // if (isServer)
-            //     //     return
-            //
-            //     // viteServer.middlewares.stack.unshift({
-            //     viteServer.middlewares.stack.push({
-            //         route,
-            //         // @ts-expect-error just ignore
-            //         handle: (_req, _res, next) => {
-            //             console.log({ isServer, url: _req.url })
-            //             next()
-            //         }
-            //     })
-            // })
-        }
-
         nuxt.hook('vite:extendConfig', (viteInlineConfig) => {
             viteInlineConfig.plugins = viteInlineConfig.plugins || []
             viteInlineConfig.plugins.push(vuetify({
@@ -66,13 +45,11 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                     isNone = options.styles === 'none'
                     if (isObject(options.styles)) {
                         sassVariables = true
-                        const root = config.root || process.cwd()
-                        // cacheDir = path.resolve(config.cacheDir ?? path.join(root, 'node_modules/.vite'), 'vuetify-styles')
                         fileImport = options.styles.useViteFileImport === true
                         if (path.isAbsolute(options.styles.configFile)) {
                             configFile = path.resolve(options.styles.configFile)
                         } else {
-                            configFile = path.resolve(path.join(root, options.styles.configFile))
+                            configFile = path.resolve(path.join(config.root || process.cwd(), options.styles.configFile))
                         }
                         configFile = fileImport
                             ? pathToFileURL(configFile).href
@@ -105,30 +82,17 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                             return target
                         }
 
-                        return `${PREFIX}${path.relative(vuetifyBase, target)}`
-
-                        /*const tempFile = path.resolve(
-                            cacheDir,
-                            path.relative(path.join(vuetifyBase, 'lib'), target)
-                        )
-                        await mkdir(path.dirname(tempFile), { recursive: true })
-                        await writeFile(
-                            tempFile,
-                            `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
-                            'utf-8',
-                        )
-                        return tempFile*/
+                        return `${PREFIX}${path.relative(vuetifyBase, target)}${ssr ? '?inline' : ''}`
                     }
 
                     return undefined
                 },
-                load(id) {
-                    /*if (sassVariables && id.startsWith('vuetify-styles/')) {
-                        const target = path.resolve(vuetifyBase, id.slice('vuetify-styles/'.length))
-                        return `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`
-                    }*/
+                load(id, options) {
                     if (sassVariables && id.startsWith(PREFIX)) {
-                        const target = path.resolve(vuetifyBase, id.slice(PREFIX.length))
+                        let target = path.resolve(vuetifyBase, id.slice(PREFIX.length))
+                        if (options?.ssr)
+                            target = target.replace(/\?inline$/, '')
+
                         return {
                             code: `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
                             map: {

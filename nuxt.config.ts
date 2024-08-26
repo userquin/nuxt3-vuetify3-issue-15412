@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-08-23',
-  ssr: true,
+  ssr: false,
   css: ['vuetify/styles', '@/assets/main.scss'],
   build: {
     transpile: ['vuetify']
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       noExternal: ['vuetify']
     }
   },
-  devtools: { enabled: false },
+  devtools: { enabled: true },
   features: {
     inlineStyles: false,
     devLogs: false,
