@@ -31,6 +31,7 @@ export default defineNuxtModule<VuetifyModuleOptions>({
         let sassVariables = false
         let fileImport = false
         const PREFIX = 'vuetify-styles/'
+        const SSR_PREFIX = `/@vuetify-styles/`
 
         nuxt.hook('vite:extendConfig', (viteInlineConfig) => {
             viteInlineConfig.plugins = viteInlineConfig.plugins || []
@@ -57,7 +58,7 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                     }
                 },
                 async resolveId (source, importer, { custom, ssr }) {
-                    if (source.startsWith(PREFIX)) {
+                    if (source.startsWith(PREFIX) || source.startsWith(SSR_PREFIX)) {
                         return source
                     }
                     if (
@@ -82,22 +83,26 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                             return target
                         }
 
-                        return `${PREFIX}${path.relative(vuetifyBase, target)}${ssr ? '?inline' : ''}`
+                        return `${ssr ? SSR_PREFIX: PREFIX}${path.relative(vuetifyBase, target)}`
                     }
 
                     return undefined
                 },
-                load(id, options) {
-                    if (sassVariables && id.startsWith(PREFIX)) {
-                        let target = path.resolve(vuetifyBase, id.slice(PREFIX.length))
-                        if (options?.ssr)
-                            target = target.replace(/\?inline$/, '')
+                load(id){
+                    if (sassVariables) {
+                        const target = id.startsWith(PREFIX)
+                         ? path.resolve(vuetifyBase, id.slice(PREFIX.length))
+                         : id.startsWith(SSR_PREFIX)
+                            ? path.resolve(vuetifyBase, id.slice(SSR_PREFIX.length))
+                            : undefined
 
-                        return {
-                            code: `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
-                            map: {
-                                mappings: '',
-                            },
+                        if (target) {
+                            return {
+                                code: `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
+                                map: {
+                                    mappings: ''
+                                }
+                            }
                         }
                     }
                     return isNone && noneFiles.has(id) ? '' : undefined
