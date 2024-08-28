@@ -6,7 +6,6 @@ import { resolveVuetifyBase, normalizePath, isObject } from '@vuetify/loader-sha
 import { pathToFileURL } from 'node:url'
 
 export interface VuetifyModuleOptions {
-    autoImport?: ImportPluginOptions
     styles?: true | 'none' | 'sass' | {
         configFile: string
         useViteFileImport?: boolean
@@ -22,6 +21,7 @@ export default defineNuxtModule<VuetifyModuleOptions>({
             bridge: false,
         },
     },
+    defaults: () => ({ styles: true }),
     setup(options, nuxt) {
         let configFile: string | undefined
         // let cacheDir: string | undefined
@@ -39,6 +39,9 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                 ...options,
                 styles: true,
             }))
+            if (options.styles === true)
+                return
+
             viteInlineConfig.plugins.push({
                 name: 'vuetify:nuxt:styles',
                 enforce: 'pre',
