@@ -4,10 +4,8 @@ import vuetify from 'vite-plugin-vuetify'
 import path from 'upath'
 import { resolveVuetifyBase, normalizePath, isObject } from '@vuetify/loader-shared'
 import { pathToFileURL } from 'node:url'
-import { mkdir, writeFile } from 'node:fs/promises'
 
 export interface VuetifyModuleOptions {
-    autoImport?: ImportPluginOptions
     styles?: true | 'none' | 'sass' | {
         configFile: string
         useViteFileImport?: boolean
@@ -23,13 +21,17 @@ export default defineNuxtModule<VuetifyModuleOptions>({
             bridge: false,
         },
     },
+    defaults: () => ({ styles: true }),
     setup(options, nuxt) {
         let configFile: string | undefined
-        let cacheDir: string | undefined
+        // let cacheDir: string | undefined
         const vuetifyBase = resolveVuetifyBase()
         const noneFiles = new Set<string>()
-        const isNone = options.styles === 'none'
+        let isNone = false
+        let sassVariables = false
         let fileImport = false
+        const PREFIX = 'vuetify-styles/'
+        const SSR_PREFIX = `/@vuetify-styles/`
 
         nuxt.hook('vite:extendConfig', (viteInlineConfig) => {
             viteInlineConfig.plugins = viteInlineConfig.plugins || []
@@ -37,18 +39,21 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                 ...options,
                 styles: true,
             }))
+            if (options.styles === true)
+                return
+
             viteInlineConfig.plugins.push({
                 name: 'vuetify:nuxt:styles',
                 enforce: 'pre',
                 async configResolved (config) {
+                    isNone = options.styles === 'none'
                     if (isObject(options.styles)) {
-                        const root = config.root || process.cwd()
-                        cacheDir = path.resolve(config.cacheDir ?? path.join(root, 'node_modules/.vite'), 'vuetify-styles')
+                        sassVariables = true
                         fileImport = options.styles.useViteFileImport === true
                         if (path.isAbsolute(options.styles.configFile)) {
                             configFile = path.resolve(options.styles.configFile)
                         } else {
-                            configFile = path.resolve(path.join(root, options.styles.configFile))
+                            configFile = path.resolve(path.join(config.root || process.cwd(), options.styles.configFile))
                         }
                         configFile = fileImport
                             ? pathToFileURL(configFile).href
@@ -56,6 +61,9 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                     }
                 },
                 async resolveId (source, importer, { custom, ssr }) {
+                    if (source.startsWith(PREFIX) || source.startsWith(SSR_PREFIX)) {
+                        return source
+                    }
                     if (
                         source === 'vuetify/styles' || (
                             importer &&
@@ -78,22 +86,28 @@ export default defineNuxtModule<VuetifyModuleOptions>({
                             return target
                         }
 
-                        const tempFile = path.resolve(
-                            cacheDir,
-                            path.relative(path.join(vuetifyBase, 'lib'), target)
-                        )
-                        await mkdir(path.dirname(tempFile), { recursive: true })
-                        await writeFile(
-                            tempFile,
-                            `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
-                            'utf-8',
-                        )
-                        return tempFile
+                        return `${ssr ? SSR_PREFIX: PREFIX}${path.relative(vuetifyBase, target)}`
                     }
 
                     return undefined
                 },
-                load(id) {
+                load(id){
+                    if (sassVariables) {
+                        const target = id.startsWith(PREFIX)
+                         ? path.resolve(vuetifyBase, id.slice(PREFIX.length))
+                         : id.startsWith(SSR_PREFIX)
+                            ? path.resolve(vuetifyBase, id.slice(SSR_PREFIX.length))
+                            : undefined
+
+                        if (target) {
+                            return {
+                                code: `@use "${configFile}"\n@use "${fileImport ? pathToFileURL(target).href : normalizePath(target)}"`,
+                                map: {
+                                    mappings: ''
+                                }
+                            }
+                        }
+                    }
                     return isNone && noneFiles.has(id) ? '' : undefined
                 },
             })

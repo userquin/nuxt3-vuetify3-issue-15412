@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-08-23',
-  ssr: false,
+  ssr: true,
   css: ['vuetify/styles', '@/assets/main.scss'],
   build: {
     transpile: ['vuetify']
@@ -24,7 +24,9 @@ export default defineNuxtConfig({
     devLogs: false,
   },
   vuetify: {
+    // styles: true,
     // styles: 'none',
+    // styles: 'sass',
     styles: {
       configFile: 'assets/variables.scss',
       // useViteFileImport: true,
