@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     inlineStyles: false,
     devLogs: false,
   },
-  vuetify: {
+  customVuetify: {
     // styles: true,
     // styles: 'none',
     // styles: 'sass',
@@ -34,8 +34,12 @@ export default defineNuxtConfig({
   },
   modules: [
     //'./modules/vuetify.ts',
+    'vuetify-nuxt-module',
     'nuxt-icon',
   ],
+  vuetify: {
+
+  },
   app: {
     head: {
       link: [

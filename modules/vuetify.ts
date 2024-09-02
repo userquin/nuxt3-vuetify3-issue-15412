@@ -5,17 +5,17 @@ import path from 'upath'
 import { resolveVuetifyBase, normalizePath, isObject } from '@vuetify/loader-shared'
 import { pathToFileURL } from 'node:url'
 
-export interface VuetifyModuleOptions {
+export interface ModuleOptions {
     styles?: true | 'none' | 'sass' | {
         configFile: string
         useViteFileImport?: boolean
     }
 }
 
-export default defineNuxtModule<VuetifyModuleOptions>({
+export default defineNuxtModule<ModuleOptions>({
     meta: {
         name: 'vuetify-nuxt-module',
-        configKey: 'vuetify',
+        configKey: 'customVuetify',
         compatibility: {
             nuxt: '>=3.9.0',
             bridge: false,
