@@ -14,7 +14,7 @@ export interface ModuleOptions {
 
 export default defineNuxtModule<ModuleOptions>({
     meta: {
-        name: 'vuetify-nuxt-module',
+        name: 'vuetify-nuxt-module-custom',
         configKey: 'customVuetify',
         compatibility: {
             nuxt: '>=3.9.0',
